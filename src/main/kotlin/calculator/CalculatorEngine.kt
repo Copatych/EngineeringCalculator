@@ -41,7 +41,8 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                 }
                 TokenAbbreviation.N -> {
                     if (store.size == 1) {
-                        result = pairCurrent.second.toDouble()
+                        // ".replace(',', '.')", because the calculator supports a comma as a decimal separator
+                        result = pairCurrent.second.replace(',', '.').toDouble()
                         break
                     } else {
                         doNext = true
@@ -53,13 +54,40 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                 TokenAbbreviation.S -> {
                     when (pairCurrent.second) {
                         "(" -> {
-
+                            if (i.hasNext()) {
+                                val pairNext = i.next()
+                                if (pairNext.first == TokenAbbreviation.N) {
+                                    if (i.hasNext()) {
+                                        val pairNextNext = i.next()
+                                        if (pairNextNext.second == ")") {
+                                            // Situation "(N)"
+                                            i.remove()
+                                            i.previous()
+                                            i.remove()
+                                            pairCurrent = pairNext
+                                            doNext = false
+                                        } else {
+                                            // TODO My Exceptions
+                                            throw Exception("Expression \"${pairCurrent.second}${pairNext.second}${pairNextNext.second}\" cannot be recognized")
+                                        }
+                                    } else {
+                                        // TODO My Exceptions
+                                        throw Exception("Expression \"${pairCurrent.second}${pairNext.second}\" cannot be recognized")
+                                    }
+                                } else {
+                                    pairCurrent = pairNext
+                                    doNext = false
+                                }
+                            } else {
+                                // TODO My Exceptions
+                                throw Exception("Expression cannot be recognized")
+                            }
                         }
                         ";" -> {
                             doNext = true
                         }
                         ")" -> {
-                            // situation "F(N, N, N, .., N)"
+                            // situation "F(N, N, N, .., N)" or "F((N)...)"
                             val v: MutableList<Double> = mutableListOf()
                             i.remove()
                             while (true) {
@@ -72,15 +100,20 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                                 } else {
                                     if (elem.second != ";") {
                                         // TODO My exceptions
-                                        throw Exception("Wrong sequence")
+                                        throw Exception("Expression cannot be recognized")
                                     }
                                 }
                             }
                             val pairWithFunc = i.getCurrentValue()
-                            val funRes: Double = functionsDirector.calculate(pairWithFunc.second, v.toTypedArray())
-                            pairCurrent = Pair(TokenAbbreviation.N, funRes.toString())
-                            i.set(pairCurrent)
-                            doNext = false
+                            if (pairWithFunc.second != "(") {
+                                val funRes: Double = functionsDirector.calculate(pairWithFunc.second, v.toTypedArray())
+                                pairCurrent = Pair(TokenAbbreviation.N, funRes.toString())
+                                i.set(pairCurrent)
+                                doNext = false
+                            } else {
+                                i.add(Pair(TokenAbbreviation.N, v[0].toString()), DelegatingMutableListIterator.Direction.FORWARD)
+                                doNext = true
+                            }
                         }
                     }
 

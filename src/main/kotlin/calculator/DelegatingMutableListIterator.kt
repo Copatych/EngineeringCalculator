@@ -1,7 +1,7 @@
 package calculator
 
 class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) : MutableListIterator<T> by it {
-    private enum class Direction {
+    enum class Direction {
         FORWARD, BACK
     }
 
@@ -58,5 +58,12 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
     override fun remove() {
         direction = Direction.FORWARD
         it.remove()
+    }
+
+    fun add(element: T, direct: Direction) {
+        if (direct != direction) {
+            changeDirection()
+        }
+        add(element)
     }
 }
