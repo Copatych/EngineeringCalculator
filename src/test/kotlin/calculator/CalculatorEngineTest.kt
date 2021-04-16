@@ -2,6 +2,7 @@ package calculator
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import java.lang.Exception
 import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sin
@@ -46,6 +47,9 @@ internal class CalculatorEngineTest {
         TestedData("pi", PI),
         TestedData("sin(pi)", 0.0),
         TestedData("sum(sin(pi); 3; 5.5)", 8.5),
+        TestedData("(3.4)", 3.4),
+        TestedData("(3,4)", 3.4),
+        TestedData("sin((pi))", 0.0),
         TestedData("1+2", 3.0),
         TestedData("sin(pi / 2)", 1.0)
     )
@@ -53,13 +57,18 @@ internal class CalculatorEngineTest {
     fun calculate() {
         val calcEngine = CalculatorEngine(funcDirector, opDirector)
         for (td in tdArray) {
-            val lexer = Lexer(td.expression)
-            val calculatedResult = calcEngine.calculate(lexer.tokens, lexer.tokensMap)
             val errMessage = "${tdArray.indexOf(td) + 1} / ${tdArray.size}. Error in \"${td.expression}\"\n"
-            if (calculatedResult != null && td.result != null) {
-                Assertions.assertEquals(td.result, calculatedResult, 1e-7, errMessage)
-            } else {
-                Assertions.assertEquals(td.result, calculatedResult, errMessage)
+            try {
+                val lexer = Lexer(td.expression)
+                val calculatedResult = calcEngine.calculate(lexer.tokens, lexer.tokensMap)
+                if (calculatedResult != null && td.result != null) {
+                    Assertions.assertEquals(td.result, calculatedResult, 1e-7, errMessage)
+                } else {
+                    Assertions.assertEquals(td.result, calculatedResult, errMessage)
+                }
+            } catch (e: Exception) {
+                print(errMessage)
+                throw e
             }
         }
     }
