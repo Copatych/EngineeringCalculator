@@ -10,7 +10,7 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
     fun calculate(tokens: List<String>, tokensMap: List<TokenAbbreviation>) : Double? {
         var result: Double? = null
         val store: MutableList<Pair<TokenAbbreviation, String>> = (tokensMap zip tokens).toMutableList()
-        val i = store.listIterator()
+        val i = DelegatingMutableListIterator(store.listIterator())
         var doNext = false
         var pairCurrent = i.next()
         while (true) {
@@ -24,14 +24,15 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                         if (pairNext.second == "(") {
                             doNext = true
                         } else {
-                            i.previous() // return current element
-                            i.previous() // return previous element
+                            // Function without arguments, as "PI"
+                            i.previous()
                             val funRes: Double = functionsDirector.calculate(pairCurrent.second, arrayOf<Double>())
                             pairCurrent = Pair(TokenAbbreviation.N, funRes.toString())
                             i.set(pairCurrent)
                             doNext = false
                         }
                     } else {
+                        // Function without arguments, as "PI"
                         val funRes: Double = functionsDirector.calculate(pairCurrent.second, arrayOf<Double>())
                         pairCurrent = Pair(TokenAbbreviation.N, funRes.toString())
                         i.set(pairCurrent)
@@ -50,6 +51,38 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
 
                 }
                 TokenAbbreviation.S -> {
+                    when (pairCurrent.second) {
+                        "(" -> {
+
+                        }
+                        ";" -> {
+                            doNext = true
+                        }
+                        ")" -> {
+                            // situation "F(N, N, N, .., N)"
+                            val v: MutableList<Double> = mutableListOf()
+                            i.remove()
+                            while (true) {
+                                var elem = i.getCurrentValue()
+                                i.remove()
+                                if (elem.first == TokenAbbreviation.N) {
+                                    v.add(0, elem.second.toDouble())
+                                } else if (elem.second == "(") {
+                                    break
+                                } else {
+                                    if (elem.second != ";") {
+                                        // TODO My exceptions
+                                        throw Exception("Wrong sequence")
+                                    }
+                                }
+                            }
+                            val pairWithFunc = i.getCurrentValue()
+                            val funRes: Double = functionsDirector.calculate(pairWithFunc.second, v.toTypedArray())
+                            pairCurrent = Pair(TokenAbbreviation.N, funRes.toString())
+                            i.set(pairCurrent)
+                            doNext = false
+                        }
+                    }
 
                 }
             }

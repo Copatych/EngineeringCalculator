@@ -9,7 +9,7 @@ import kotlin.math.sin
 internal class CalculatorEngineTest {
     private val funcDirector = FunctionsDirector()
     init {
-        funcDirector.registerFunction("add", null,
+        funcDirector.registerFunction("sum", null,
             { v: Array<Double> ->
                 var res = 0.0
                 v.forEach { res += it }
@@ -45,6 +45,7 @@ internal class CalculatorEngineTest {
     private val tdArray: Array<TestedData> = arrayOf(
         TestedData("pi", PI),
         TestedData("sin(pi)", 0.0),
+        TestedData("sum(sin(pi); 3; 5.5)", 8.5),
         TestedData("1+2", 3.0),
         TestedData("sin(pi / 2)", 1.0)
     )
@@ -53,8 +54,13 @@ internal class CalculatorEngineTest {
         val calcEngine = CalculatorEngine(funcDirector, opDirector)
         for (td in tdArray) {
             val lexer = Lexer(td.expression)
-            Assertions.assertEquals(td.result, calcEngine.calculate(lexer.tokens, lexer.tokensMap),
-                "${tdArray.indexOf(td) / tdArray.size}. Error in \"${td.expression}\n\"\n")
+            val calculatedResult = calcEngine.calculate(lexer.tokens, lexer.tokensMap)
+            val errMessage = "${tdArray.indexOf(td) + 1} / ${tdArray.size}. Error in \"${td.expression}\"\n"
+            if (calculatedResult != null && td.result != null) {
+                Assertions.assertEquals(td.result, calculatedResult, 1e-7, errMessage)
+            } else {
+                Assertions.assertEquals(td.result, calculatedResult, errMessage)
+            }
         }
     }
 
