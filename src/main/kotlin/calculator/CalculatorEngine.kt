@@ -2,8 +2,9 @@ package calculator
 import calculator.Lexer.TokenAbbreviation
 
 class CalculatorEngine(val functionsDirector: FunctionsDirector,
-                       val operationsDirector: OperationsDirector) {
-    var ans: Double? = null
+                       val operationsDirector: OperationsDirector, private val ansOld: Double? = null) {
+
+    var ans: Double? = ansOld
         private set
 
     // TODO
