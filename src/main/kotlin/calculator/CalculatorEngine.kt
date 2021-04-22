@@ -8,15 +8,15 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
         private set
 
     fun calculate(tokens: List<String>, tokensMap: List<TokenAbbreviation>) : Double? {
-        val store = CalculatorableStore((tokensMap zip tokens).toMutableList())
+        val calcStore = CalculatorableStore((tokensMap zip tokens).toMutableList())
         var curNumberOfIterations = 0
         var maxNumberOfIterations = tokens.size * 40
-        while (store.nextStep()) {
-            when (store.currentToken()) {
-                TokenAbbreviation.F -> store.processF()
-                TokenAbbreviation.O -> store.processO()
-                TokenAbbreviation.N -> store.processN()
-                TokenAbbreviation.S -> store.processS()
+        while (calcStore.nextStep()) {
+            when (calcStore.currentToken()) {
+                TokenAbbreviation.F -> calcStore.processF()
+                TokenAbbreviation.O -> calcStore.processO()
+                TokenAbbreviation.N -> calcStore.processN()
+                TokenAbbreviation.S -> calcStore.processS()
             }
             curNumberOfIterations++
             if (curNumberOfIterations > maxNumberOfIterations) {
@@ -24,10 +24,10 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                 throw Exception("Most likely the execution is looped")
             }
         }
-        if (store.result != null) {
-            ans = store.result
+        if (calcStore.result != null) {
+            ans = calcStore.result
         }
-        return store.result
+        return calcStore.result
     }
 
     // See CalculatorEngine.calculate
@@ -43,11 +43,12 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             if (isEnd) {
                 return false
             }
-            if (doNext) {
-                pairCurrent = i.next()
-            } else {
-                pairCurrent = i.getCurrentValue()
+            if (doNext && !i.hasNext()) {
+                // "i" reached the end
+                i.move(-(store.size - 1))
+                doNext = false
             }
+            pairCurrent = if (doNext) i.next() else i.getCurrentValue()
             return true
         }
 
@@ -56,21 +57,16 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
         fun processF() {
             if (i.hasNext()) {
                 val pairNext = i.next()
-                if (pairNext.second == "(") {
+                if (pairNext.second == "(") { // do F, when get to the ")"
                     doNext = true
-                } else {
-                    // Function without arguments, as "PI"
+                    return
+                } else { // Function without arguments, as "PI"
                     i.previous()
-                    val funRes: Double = functionsDirector.calculate(pairCurrent.second, arrayOf<Double>())
-                    i.set(Pair(TokenAbbreviation.N, funRes.toString()))
-                    doNext = false
                 }
-            } else {
-                // Function without arguments, as "PI"
-                val funRes: Double = functionsDirector.calculate(pairCurrent.second, arrayOf<Double>())
-                i.set(Pair(TokenAbbreviation.N, funRes.toString()))
-                doNext = false
-            }
+            } // else Function without arguments, as "PI"
+            val funRes: Double = functionsDirector.calculate(pairCurrent.second, arrayOf<Double>())
+            i.set(Pair(TokenAbbreviation.N, funRes.toString()))
+            doNext = false
         }
 
         fun processN() {
@@ -79,9 +75,6 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                 result = pairCurrent.second.replace(',', '.').toDouble()
                 isEnd = true
             } else {
-                if (!i.hasNext()) {
-                    i.move(-(store.size - 1))
-                }
                 doNext = true
             }
         }
@@ -89,58 +82,62 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
         fun processO() {
             val op = pairCurrent.second
             when(operationsDirector.getArity(op)) {
-                Arity.UNARY -> {
-                    val isLeftNeighbour = when(operationsDirector.getAssociativity(op)) {
-                        Associativity.RIGHT -> false
-                        Associativity.LEFT -> true
-                    }
-                    if (isFirstNeighbourReadyForOp(isLeftNeighbour)) {
-                        val neighbourOpPair = checkSecondNeighbourForOp(isLeftNeighbour)
-                        if (neighbourOpPair == null || operationsDirector.comparePriority(op, neighbourOpPair.second) > 0) {
-                            doUnaryOperation()
-                        } else {
-                            doNext = true
-                        }
-                    } else {
-                        doNext = true
-                    }
+                Arity.UNARY -> processOUnary(op)
+                Arity.BINARY -> processOBinary(op)
+            }
+        }
+
+        private fun processOUnary(op: String) {
+            val isLeftNeighbour = when(operationsDirector.getAssociativity(op)) {
+                Associativity.RIGHT -> false
+                Associativity.LEFT -> true
+            }
+            if (isFirstNeighbourReadyForOp(isLeftNeighbour)) {
+                val neighbourOpPair = checkSecondNeighbourForOp(isLeftNeighbour)
+                if (neighbourOpPair == null || operationsDirector.comparePriority(op, neighbourOpPair.second) > 0) {
+                    doUnaryOperation()
+                } else {
+                    doNext = true
                 }
-                Arity.BINARY -> {
-                    if (isFirstNeighbourReadyForOp(isLeftNeighbour=true) && isFirstNeighbourReadyForOp(isLeftNeighbour = false)) {
-                        val leftOpPair = checkSecondNeighbourForOp(isLeftNeighbour = true)
-                        val rightOpPair = checkSecondNeighbourForOp(isLeftNeighbour = false)
-                        val priorityOverLeft = leftOpPair?.let { operationsDirector.comparePriority(op, it.second) }
-                        val priorityOverRight = rightOpPair?.let { operationsDirector.comparePriority(op, it.second) }
-                        if (priorityOverLeft == null && priorityOverRight == null) doBinaryOperation()
-                        else if((priorityOverLeft == null || priorityOverLeft >= 0) && priorityOverRight != null) {
-                            when {
-                                priorityOverRight > 0  -> doBinaryOperation()
-                                priorityOverRight < 0  -> doNext = true
-                                priorityOverRight == 0 -> {
-                                    when (operationsDirector.getAssociativity(op)) {
-                                        Associativity.LEFT -> doBinaryOperation()
-                                        Associativity.RIGHT -> doNext = true
-                                    }
-                                }
+            } else {
+                doNext = true
+            }
+        }
+
+        private fun processOBinary(op: String) {
+            if (isFirstNeighbourReadyForOp(isLeftNeighbour=true) && isFirstNeighbourReadyForOp(isLeftNeighbour = false)) {
+                val leftOpPair = checkSecondNeighbourForOp(isLeftNeighbour = true)
+                val rightOpPair = checkSecondNeighbourForOp(isLeftNeighbour = false)
+                val priorityOverLeft = leftOpPair?.let { operationsDirector.comparePriority(op, it.second) }
+                val priorityOverRight = rightOpPair?.let { operationsDirector.comparePriority(op, it.second) }
+                if (priorityOverLeft == null && priorityOverRight == null) doBinaryOperation()
+                else if((priorityOverLeft == null || priorityOverLeft >= 0) && priorityOverRight != null) {
+                    when {
+                        priorityOverRight > 0  -> doBinaryOperation()
+                        priorityOverRight < 0  -> doNext = true
+                        priorityOverRight == 0 -> {
+                            when (operationsDirector.getAssociativity(op)) {
+                                Associativity.LEFT -> doBinaryOperation()
+                                Associativity.RIGHT -> doNext = true
                             }
-                        } else if((priorityOverRight == null || priorityOverRight > 0) && priorityOverLeft != null) {
-                            when {
-                                priorityOverLeft > 0  -> doBinaryOperation()
-                                priorityOverLeft < 0  -> doNext = true
-                                priorityOverLeft == 0 -> {
-                                    when (operationsDirector.getAssociativity(op)) {
-                                        Associativity.LEFT -> doNext = true
-                                        Associativity.RIGHT -> doBinaryOperation()
-                                    }
-                                }
-                            }
-                        } else {
-                            doNext = true
                         }
-                    } else {
-                        doNext = true // move next
                     }
+                } else if((priorityOverRight == null || priorityOverRight > 0) && priorityOverLeft != null) {
+                    when {
+                        priorityOverLeft > 0  -> doBinaryOperation()
+                        priorityOverLeft < 0  -> doNext = true
+                        priorityOverLeft == 0 -> {
+                            when (operationsDirector.getAssociativity(op)) {
+                                Associativity.LEFT -> doNext = true
+                                Associativity.RIGHT -> doBinaryOperation()
+                            }
+                        }
+                    }
+                } else {
+                    doNext = true
                 }
+            } else {
+                doNext = true // move next
             }
         }
 
@@ -149,7 +146,7 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             val v1 = i.previous().second.toDouble()
             i.remove()
             // TODO My Exceptions
-            val v2 = if (i.hasPrevious()) {
+            val v2 = if (i.getCurrentValue() !== pairCurrent) {
                 i.move(2)?.second?.toDouble() ?: throw Exception("Internal error. \"Can't do operation \\\"${op}\\\"\"")
             } else i.next().second.toDouble()
             i.remove()
@@ -219,7 +216,6 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                             pairCurrent = pairNext
                             doNext = false
                         } else {
-                            pairCurrent = pairNextNext
                             doNext = false
                             // TODO My Exceptions
 //                            throw Exception("Expression \"${pairCurrent.second}${pairNext.second}${pairNextNext.second}\" cannot be recognized")
@@ -229,7 +225,7 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                         throw Exception("Expression \"${pairCurrent.second}${pairNext.second}\" cannot be recognized")
                     }
                 } else {
-                    pairCurrent = pairNext
+//                    pairCurrent = pairNext
                     doNext = false
                 }
             } else {
@@ -251,10 +247,20 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                     break
                 } else {
                     if (elem.second != ";") {
+                        i.add(elem)
+                        i.add(Pair(TokenAbbreviation.N, v[0].toString()))
+                        i.add(Pair(TokenAbbreviation.S, ")"))
+                        doNext = true
+                        return
                         // TODO My exceptions
-                        throw Exception("Expression in parenthesis cannot be recognized")
+//                        throw Exception("Expression in parenthesis cannot be recognized")
                     }
                 }
+            }
+            if (store.size == 0) { // Situation "(N)" when all tokens were deleted
+                i.add(Pair(TokenAbbreviation.N, v[0].toString()))
+                doNext = false
+                return
             }
             val pairWithFunc = i.getCurrentValue()
             if (pairWithFunc.first == TokenAbbreviation.F) {
@@ -262,7 +268,7 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                 i.set(Pair(TokenAbbreviation.N, funRes.toString()))
                 doNext = false
             } else {
-                val direction = if (pairWithFunc.second == "(" || !i.hasNext()) { // situation "F((N)...)"
+                val direction = if (pairWithFunc.second == "(" || (!i.hasNext() && i.hasPrevious())) { // situation "F((N)...)" or first token is "(" or
                     DelegatingMutableListIterator.Direction.FORWARD
                 } else { // situation (...) or ...(...)
                     DelegatingMutableListIterator.Direction.BACK

@@ -69,6 +69,14 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
         }
         add(element)
     }
+
+    override fun add(element: T) {
+        if (!it.hasPrevious() && !it.hasNext()) { // if empty
+            direction = Direction.FORWARD
+        }
+        it.add(element)
+    }
+
     fun move(n: Int) : T? {
         if (n == 0) return getCurrentValue()
         var moveN = 0
