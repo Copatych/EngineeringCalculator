@@ -1,5 +1,8 @@
 package calculator
 
+import kotlin.math.absoluteValue
+import kotlin.math.sign
+
 class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) : MutableListIterator<T> by it {
     enum class Direction {
         FORWARD, BACK
@@ -56,7 +59,7 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
     }
 
     override fun remove() {
-        direction = Direction.FORWARD
+        direction = if (it.hasPrevious()) Direction.FORWARD else Direction.BACK
         it.remove()
     }
 
@@ -65,5 +68,28 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
             changeDirection()
         }
         add(element)
+    }
+    fun move(n: Int) : T? {
+        if (n == 0) return getCurrentValue()
+        var moveN = 0
+        var res: T? = null
+        for (i in 1..n.absoluteValue) {
+            res = if(n > 0 && hasNext()) {
+                moveN = i
+                next()
+            } else if (n < 0 && hasPrevious()) {
+                moveN = i
+                previous()
+            } else {
+                null
+            }
+        }
+        if (res == null) move(n.sign * -1 * moveN) // undo move
+        return res
+    }
+
+    override fun set(element: T) {
+        getCurrentValue()
+        it.set(element)
     }
 }
