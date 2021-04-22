@@ -2,9 +2,11 @@ package calculator
 
 import java.lang.Exception
 
+enum class Associativity{LEFT, RIGHT;}
+
+enum class Arity{UNARY, BINARY;}
+
 class OperationsDirector {
-    enum class Arity{UNARY, BINARY;}
-    enum class Associativity{LEFT, RIGHT;}
     private data class Operation(val name: String, val arity: Arity,
                                  val priority: Int, val associativity: Associativity,
                                  val calc: (v: Array<Double>) -> Double)

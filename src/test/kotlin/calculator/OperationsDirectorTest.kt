@@ -11,23 +11,23 @@ internal class OperationsDirectorTest {
     private val opDirector = OperationsDirector()
     init {
         opDirector.registerOperation("+", {v -> v[0] + v[1]},
-            OperationsDirector.Arity.BINARY, 1,
-            OperationsDirector.Associativity.LEFT)
+            Arity.BINARY, 1,
+            Associativity.LEFT)
         opDirector.registerOperation("-", {v -> v[0] - v[1]},
-            OperationsDirector.Arity.BINARY, 1,
-            OperationsDirector.Associativity.LEFT)
+            Arity.BINARY, 1,
+            Associativity.LEFT)
         opDirector.registerOperation("*", {v -> v[0] * v[1]},
-            OperationsDirector.Arity.BINARY, 5,
-            OperationsDirector.Associativity.LEFT)
+            Arity.BINARY, 5,
+            Associativity.LEFT)
         opDirector.registerOperation("/", {v -> v[0] / v[1]},
-            OperationsDirector.Arity.BINARY, 5,
-            OperationsDirector.Associativity.LEFT)
+            Arity.BINARY, 5,
+            Associativity.LEFT)
         opDirector.registerOperation("**", {v -> v[0].pow(v[1])},
-            OperationsDirector.Arity.BINARY, 9,
-            OperationsDirector.Associativity.RIGHT)
+            Arity.BINARY, 9,
+            Associativity.RIGHT)
         opDirector.registerOperation("++", {v -> v[0] + 1},
-            OperationsDirector.Arity.UNARY, 9,
-            OperationsDirector.Associativity.LEFT)
+            Arity.UNARY, 9,
+            Associativity.LEFT)
     }
 
     @Test
@@ -61,23 +61,23 @@ internal class OperationsDirectorTest {
 
     @Test
     fun getAssociativity() {
-        assertEquals(opDirector.getAssociativity("+"), OperationsDirector.Associativity.LEFT)
-        assertEquals(opDirector.getAssociativity("-"), OperationsDirector.Associativity.LEFT)
-        assertEquals(opDirector.getAssociativity("*"), OperationsDirector.Associativity.LEFT)
-        assertEquals(opDirector.getAssociativity("/"), OperationsDirector.Associativity.LEFT)
-        assertEquals(opDirector.getAssociativity("**"), OperationsDirector.Associativity.RIGHT)
+        assertEquals(opDirector.getAssociativity("+"), Associativity.LEFT)
+        assertEquals(opDirector.getAssociativity("-"), Associativity.LEFT)
+        assertEquals(opDirector.getAssociativity("*"), Associativity.LEFT)
+        assertEquals(opDirector.getAssociativity("/"), Associativity.LEFT)
+        assertEquals(opDirector.getAssociativity("**"), Associativity.RIGHT)
         val exceptionMessage = assertThrows(Exception::class.java, {opDirector.getAssociativity("^")})
         assertEquals(exceptionMessage, Exception("This operation doesn't exist."))
     }
 
     @Test
     fun getArity() {
-        assertEquals(opDirector.getArity("+"), OperationsDirector.Arity.BINARY)
-        assertEquals(opDirector.getArity("-"), OperationsDirector.Arity.BINARY)
-        assertEquals(opDirector.getArity("*"), OperationsDirector.Arity.BINARY)
-        assertEquals(opDirector.getArity("/"), OperationsDirector.Arity.BINARY)
-        assertEquals(opDirector.getArity("**"), OperationsDirector.Arity.BINARY)
-        assertEquals(opDirector.getArity("++"), OperationsDirector.Arity.UNARY)
+        assertEquals(opDirector.getArity("+"), Arity.BINARY)
+        assertEquals(opDirector.getArity("-"), Arity.BINARY)
+        assertEquals(opDirector.getArity("*"), Arity.BINARY)
+        assertEquals(opDirector.getArity("/"), Arity.BINARY)
+        assertEquals(opDirector.getArity("**"), Arity.BINARY)
+        assertEquals(opDirector.getArity("++"), Arity.UNARY)
         val exceptionMessage = assertThrows(Exception::class.java, {opDirector.getArity("^")})
         assertEquals(exceptionMessage, Exception("This operation doesn't exist."))
     }
