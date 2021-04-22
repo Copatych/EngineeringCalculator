@@ -45,6 +45,8 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             }
             if (doNext) {
                 pairCurrent = i.next()
+            } else {
+                pairCurrent = i.getCurrentValue()
             }
             return true
         }
@@ -60,15 +62,13 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                     // Function without arguments, as "PI"
                     i.previous()
                     val funRes: Double = functionsDirector.calculate(pairCurrent.second, arrayOf<Double>())
-                    pairCurrent = Pair(TokenAbbreviation.N, funRes.toString())
-                    i.set(pairCurrent)
+                    i.set(Pair(TokenAbbreviation.N, funRes.toString()))
                     doNext = false
                 }
             } else {
                 // Function without arguments, as "PI"
                 val funRes: Double = functionsDirector.calculate(pairCurrent.second, arrayOf<Double>())
-                pairCurrent = Pair(TokenAbbreviation.N, funRes.toString())
-                i.set(pairCurrent)
+                i.set(Pair(TokenAbbreviation.N, funRes.toString()))
                 doNext = false
             }
         }
@@ -147,8 +147,7 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             val pairWithFunc = i.getCurrentValue()
             if (pairWithFunc.second != "(") {
                 val funRes: Double = functionsDirector.calculate(pairWithFunc.second, v.toTypedArray())
-                pairCurrent = Pair(TokenAbbreviation.N, funRes.toString())
-                i.set(pairCurrent)
+                i.set(Pair(TokenAbbreviation.N, funRes.toString()))
                 doNext = false
             } else {
                 i.add(Pair(TokenAbbreviation.N, v[0].toString()), DelegatingMutableListIterator.Direction.FORWARD)
