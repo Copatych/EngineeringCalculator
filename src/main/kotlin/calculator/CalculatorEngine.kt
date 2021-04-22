@@ -9,12 +9,19 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
 
     fun calculate(tokens: List<String>, tokensMap: List<TokenAbbreviation>) : Double? {
         val store = CalculatorableStore((tokensMap zip tokens).toMutableList())
+        var curNumberOfIterations = 0
+        var maxNumberOfIterations = tokens.size * 40
         while (store.nextStep()) {
             when (store.currentToken()) {
                 TokenAbbreviation.F -> store.processF()
                 TokenAbbreviation.O -> store.processO()
                 TokenAbbreviation.N -> store.processN()
                 TokenAbbreviation.S -> store.processS()
+            }
+            curNumberOfIterations++
+            if (curNumberOfIterations > maxNumberOfIterations) {
+                // TODO My Exceptions
+                throw Exception("Most likely the execution is looped")
             }
         }
         if (store.result != null) {
