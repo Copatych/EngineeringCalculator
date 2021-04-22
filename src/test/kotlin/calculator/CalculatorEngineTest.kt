@@ -24,23 +24,23 @@ internal class CalculatorEngineTest {
     private val opDirector = OperationsDirector()
     init {
         opDirector.registerOperation("+", {v -> v[0] + v[1]},
-            OperationsDirector.Arity.BINARY, 1,
-            OperationsDirector.Associativity.LEFT)
+            Arity.BINARY, 1,
+            Associativity.LEFT)
         opDirector.registerOperation("-", {v -> v[0] - v[1]},
-            OperationsDirector.Arity.BINARY, 1,
-            OperationsDirector.Associativity.LEFT)
+            Arity.BINARY, 1,
+            Associativity.LEFT)
         opDirector.registerOperation("*", {v -> v[0] * v[1]},
-            OperationsDirector.Arity.BINARY, 5,
-            OperationsDirector.Associativity.LEFT)
+            Arity.BINARY, 5,
+            Associativity.LEFT)
         opDirector.registerOperation("/", {v -> v[0] / v[1]},
-            OperationsDirector.Arity.BINARY, 5,
-            OperationsDirector.Associativity.LEFT)
+            Arity.BINARY, 5,
+            Associativity.LEFT)
         opDirector.registerOperation("**", {v -> v[0].pow(v[1])},
-            OperationsDirector.Arity.BINARY, 9,
-            OperationsDirector.Associativity.RIGHT)
+            Arity.BINARY, 9,
+            Associativity.RIGHT)
         opDirector.registerOperation("++", {v -> v[0] + 1},
-            OperationsDirector.Arity.UNARY, 9,
-            OperationsDirector.Associativity.LEFT)
+            Arity.UNARY, 10,
+            Associativity.LEFT)
     }
     data class TestedData(val expression: String, val result: Double?)
     private val tdArray: Array<TestedData> = arrayOf(
@@ -51,7 +51,19 @@ internal class CalculatorEngineTest {
         TestedData("(3,4)", 3.4),
         TestedData("sin((pi))", 0.0),
         TestedData("1+2", 3.0),
-        TestedData("sin(pi / 2)", 1.0)
+        TestedData("sin(pi / 2)", 1.0),
+        TestedData("1+2*3", 7.0),
+        TestedData("1*2+3", 5.0),
+        TestedData("1+2*3+4", 11.0),
+        TestedData("1*2+3*4", 14.0),
+        TestedData("2+2++", 5.0),
+        TestedData("2++ +2", 5.0),
+        TestedData("(2++) +2", 5.0),
+        TestedData("2+(2++)", 5.0),
+        TestedData("2**3**3", 2.0.pow(27)),
+        TestedData("2**3", 2.0.pow(3)),
+        TestedData("2**3++", 2.0.pow(4)),
+        TestedData("1*34++ +2-7**2-8*2**3++", (35+2-49-8*16).toDouble())
     )
     @Test
     fun calculate() {
