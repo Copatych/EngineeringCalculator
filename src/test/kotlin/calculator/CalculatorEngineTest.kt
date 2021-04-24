@@ -24,6 +24,9 @@ internal class CalculatorEngineTest {
     }
     private val opDirector = OperationsDirector()
     init {
+        opDirector.registerOperation("-", {v -> - v[0]},
+            Arity.UNARY, 15,
+            Associativity.RIGHT)
         opDirector.registerOperation("+", {v -> v[0] + v[1]},
             Arity.BINARY, 1,
             Associativity.LEFT)
@@ -56,6 +59,8 @@ internal class CalculatorEngineTest {
         TestedData("sum(sin(pi); 3; 5.5)", 8.5),
         TestedData("(3.4)", 3.4),
         TestedData("(3,4)", 3.4),
+        TestedData("3.", 3.0),
+        TestedData("3,", 3.0),
         TestedData("sin((pi))", 0.0),
         //--------------------------------------------------
         TestedData("1+2", 3.0),
@@ -85,7 +90,12 @@ internal class CalculatorEngineTest {
         TestedData("(!->3)!", 720.0),
         TestedData("!->(3!)", 720.0),
         TestedData("2! + !->3!", 722.0),
-        TestedData("1+2++ ! + !->3!", 727.0)
+        TestedData("1+2++ ! + !->3!", 727.0),
+        //--------------------------------------------------
+        TestedData("-3", -3.0),
+        TestedData("(-3)", -3.0),
+        TestedData("-3 + -2", -5.0),
+        TestedData("(-3 + (-2))", -5.0)
     )
     @Test
     fun calculate() {
@@ -94,7 +104,7 @@ internal class CalculatorEngineTest {
             val errMessage = "${tdArray.indexOf(td) + 1} / ${tdArray.size}. Error in \"${td.expression}\"\n"
             try {
                 val lexer = Lexer(td.expression)
-                val calculatedResult = calcEngine.calculate(lexer.tokens, lexer.tokensMap)
+                val calculatedResult = calcEngine.calculate(lexer.tokens)
                 if (calculatedResult != null && td.result != null) {
                     Assertions.assertEquals(td.result, calculatedResult, 1e-7, errMessage)
                 } else {

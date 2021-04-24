@@ -3,7 +3,7 @@ package mymath
 import kotlin.math.*
 
 fun gamma(x: Double) : Double {
-    /*
+    /**
      * Lanczos approximation
      * https://en.wikipedia.org/wiki/Lanczos_approximation
      */
