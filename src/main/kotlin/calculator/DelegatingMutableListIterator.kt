@@ -96,6 +96,12 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
         return res
     }
 
+    fun get(shift: Int) : T? {
+        val res = move(shift)
+        if (res != null) move(-shift)
+        return res
+    }
+
     override fun set(element: T) {
         getCurrentValue()
         it.set(element)
