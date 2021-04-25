@@ -86,6 +86,14 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             }
         }
 
+        fun processS() {
+            when (tokenCurrent.value) {
+                "(" -> processOpeningParenthesis()
+                ";" -> doNext = true
+                ")" -> processClosingParenthesis()
+            }
+        }
+
         private fun getOpKey() : OperationKey {
             val op = i.getCurrentValue().value
             val neighbourFromNonImpactedSide = when (operationsDirector.getAssociativity(OperationKey(op, Arity.UNARY))) {
@@ -205,14 +213,6 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             val secondNeighbourOpKey = getOpKey()
             i.move(-moveTo * 2) // move back
             return secondNeighbourOpKey
-        }
-
-        fun processS() {
-            when (tokenCurrent.value) {
-                "(" -> processOpeningParenthesis()
-                ";" -> doNext = true
-                ")" -> processClosingParenthesis()
-            }
         }
 
         private fun processOpeningParenthesis() {
