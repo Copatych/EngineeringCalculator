@@ -10,11 +10,11 @@ internal class LexerTest {
                           val tokensMap: List<Token.Abbreviation?>?, val isCorrect: Boolean,
                           val erroredIndex: Int?, val comment: String? = null)
     private val tdArray: Array<TestedData> = arrayOf(
-        TestedData("-3",
-            listOf("-3"),
-            stringToListOfAbbrev("n"),
-            true, null,
-            "Negative number"),
+//        TestedData("-3",
+//            listOf("-3"),
+//            stringToListOfAbbrev("n"),
+//            true, null,
+//            "Negative number"),
         TestedData("1+2",
             listOf("1", "+", "2"),
             stringToListOfAbbrev("non"),

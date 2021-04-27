@@ -3,7 +3,7 @@ package calculator
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) : MutableListIterator<T> by it {
+class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) {
     enum class Direction {
         FORWARD, BACK
     }
@@ -33,19 +33,19 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
         }
     }
 
-    override fun hasNext(): Boolean {
+    fun hasNext(): Boolean {
         return doFunToDirection(it::hasNext, Direction.FORWARD)
     }
 
-    override fun next(): T {
+    fun next(): T {
         return doFunToDirection(it::next, Direction.FORWARD)
     }
 
-    override fun hasPrevious(): Boolean {
+    fun hasPrevious(): Boolean {
         return doFunToDirection(it::hasPrevious, Direction.BACK)
     }
 
-    override fun previous(): T {
+    fun previous(): T {
         return doFunToDirection(it::previous, Direction.BACK)
     }
 
@@ -58,7 +58,7 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
         return res
     }
 
-    override fun remove() {
+    fun remove() {
         direction = if (it.hasPrevious()) Direction.FORWARD else Direction.BACK
         it.remove()
     }
@@ -70,7 +70,7 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
         add(element)
     }
 
-    override fun add(element: T) {
+    fun add(element: T) {
         if (!it.hasPrevious() && !it.hasNext()) { // if empty
             direction = Direction.FORWARD
         }
@@ -102,7 +102,7 @@ class DelegatingMutableListIterator<T> (private val it: MutableListIterator<T>) 
         return res
     }
 
-    override fun set(element: T) {
+    fun set(element: T) {
         getCurrentValue()
         it.set(element)
     }
