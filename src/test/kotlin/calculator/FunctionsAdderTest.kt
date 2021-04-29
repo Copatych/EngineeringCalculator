@@ -10,8 +10,9 @@ internal class FunctionsAdderTest {
     fun doProcessingJustRenaming() {
         val funcAdder = FunctionsAdder()
         funcAdder.registerFunction("abc", "qwerty")
-        assertEquals("sumqwerty", funcAdder.doProcessing("sumabc"))
+        assertEquals(Lexer("sumabc").tokens, funcAdder.doProcessing(Lexer("sumabc").tokens))
+        assertEquals(Lexer("sum+qwerty").tokens, funcAdder.doProcessing(Lexer("sum+abc").tokens))
         funcAdder.registerFunction("qwerty", "sum")
-        assertEquals("sumsum", funcAdder.doProcessing("sumabc"))
+        assertEquals(Lexer("sum+sum").tokens, funcAdder.doProcessing(Lexer("sum+abc").tokens))
     }
 }
