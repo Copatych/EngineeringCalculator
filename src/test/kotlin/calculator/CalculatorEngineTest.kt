@@ -1,12 +1,14 @@
 package calculator
 
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import java.lang.Exception
 import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sin
 import mymath.gamma
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.DynamicTest.dynamicTest
+import org.junit.jupiter.api.TestFactory
 
 internal class CalculatorEngineTest {
     private val funcDirector = FunctionsDirector()
@@ -52,7 +54,9 @@ internal class CalculatorEngineTest {
             Arity.UNARY, 10,
             Associativity.RIGHT)
     }
+
     data class TestedData(val expression: String, val result: Double?)
+
     private val tdArray: Array<TestedData> = arrayOf(
         TestedData("pi", PI),
         TestedData("sin(pi)", 0.0),
@@ -97,22 +101,25 @@ internal class CalculatorEngineTest {
         TestedData("-3 + -2", -5.0),
         TestedData("(-3 + (-2))", -5.0)
     )
-    @Test
-    fun calculate() {
+
+    @TestFactory
+    fun calculate() : Collection<DynamicTest> {
         val calcEngine = CalculatorEngine(funcDirector, opDirector)
-        for (td in tdArray) {
-            val errMessage = "${tdArray.indexOf(td) + 1} / ${tdArray.size}. Error in \"${td.expression}\"\n"
-            try {
-                val lexer = Lexer(td.expression)
-                val calculatedResult = calcEngine.calculate(lexer.tokens)
-                if (calculatedResult != null && td.result != null) {
-                    Assertions.assertEquals(td.result, calculatedResult, 1e-7, errMessage)
-                } else {
-                    Assertions.assertEquals(td.result, calculatedResult, errMessage)
+        return tdArray.map {
+            dynamicTest(it.expression) {
+                val errMessage = "${tdArray.indexOf(it) + 1} / ${tdArray.size}. Error in \"${it.expression}\"\n"
+                try {
+                    val lexer = Lexer(it.expression)
+                    val calculatedResult = calcEngine.calculate(lexer.tokens)
+                    if (calculatedResult != null && it.result != null) {
+                        assertEquals(it.result, calculatedResult, 1e-7, errMessage)
+                    } else {
+                        assertEquals(it.result, calculatedResult, errMessage)
+                    }
+                } catch (e: Exception) {
+                    print(errMessage)
+                    throw e
                 }
-            } catch (e: Exception) {
-                print(errMessage)
-                throw e
             }
         }
     }
