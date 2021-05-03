@@ -1,7 +1,9 @@
 package calculator
 
-class CalculatorEngine(val functionsDirector: FunctionsDirector,
-                       val operationsDirector: OperationsDirector, private val ansOld: Double? = null) {
+class CalculatorEngine(
+    val functionsDirector: FunctionsDirector,
+    val operationsDirector: OperationsDirector, private val ansOld: Double? = null
+) {
 
     var ans: Double? = ansOld
         private set
@@ -94,16 +96,19 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             }
         }
 
-        private fun getOpKey() : OperationKey {
+        private fun getOpKey(): OperationKey {
             val op = i.getCurrentValue().value
-            val neighbourFromNonImpactedSide = when (operationsDirector.getAssociativity(OperationKey(op, Arity.UNARY))) {
-                Associativity.LEFT -> i.get(1)
-                Associativity.RIGHT -> i.get(-1)
-                else -> return OperationKey(op, Arity.BINARY)
+            val neighbourFromNonImpactedSide =
+                when (operationsDirector.getAssociativity(OperationKey(op, Arity.UNARY))) {
+                    Associativity.LEFT -> i.get(1)
+                    Associativity.RIGHT -> i.get(-1)
+                    else -> return OperationKey(op, Arity.BINARY)
+                }
+            val isUnaryOp = neighbourFromNonImpactedSide.run {
+                this == null ||
+                        abbreviation == Token.Abbreviation.S ||
+                        abbreviation == Token.Abbreviation.O
             }
-            val isUnaryOp = neighbourFromNonImpactedSide.run{this == null ||
-                    abbreviation == Token.Abbreviation.S ||
-                    abbreviation == Token.Abbreviation.O}
             return if (isUnaryOp) OperationKey(op, Arity.UNARY)
             else OperationKey(op, Arity.BINARY)
         }
@@ -116,7 +121,11 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             }
             if (isFirstNeighbourReadyForOp(isLeftNeighbour)) {
                 val secondNeighbourOpKey = checkSecondNeighbourForOp(isLeftNeighbour)
-                if (secondNeighbourOpKey == null || operationsDirector.comparePriority(opKey, secondNeighbourOpKey) >= 0) {
+                if (secondNeighbourOpKey == null || operationsDirector.comparePriority(
+                        opKey,
+                        secondNeighbourOpKey
+                    ) >= 0
+                ) {
                     doUnaryOperation(opKey)
                 } else {
                     doNext = true
@@ -168,9 +177,11 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             i.remove()
             // TODO My Exceptions
             val v2 = if (i.getCurrentValue() !== tokenCurrent) {
-                i.move(2)?.value?.toDouble() ?: throw Exception("Internal error. \"Can't do operation \\\"${opKey}\\\"\"")
+                i.move(2)?.value?.toDouble()
+                    ?: throw Exception("Internal error. \"Can't do operation \\\"${opKey}\\\"\"")
             } else i.next().value.toDouble()
             i.remove()
+            if (i.getCurrentValue() !== tokenCurrent) i.previous()
             val res = operationsDirector.calculate(opKey, arrayOf(v1, v2))
             i.set(Token(res.toString()))
             doNext = false
@@ -186,9 +197,8 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             val impactedToken = i.move(moveTo)
                 ?: throw Exception("Internal error. \"Can't do operation \\\"${opKey}\\\"\"")
             // We know, that impactedToken keep number, it was checked in fun isFirstNeighbourReadyForOp
-            val ifNotTheFirst = i.hasPrevious()
             i.remove()
-            if (ifNotTheFirst && moveTo == -1) i.move(1)
+            if (tokenCurrent !== i.getCurrentValue()) i.move(-1)
             val res = operationsDirector.calculate(opKey, arrayOf(impactedToken.value.toDouble()))
             i.set(Token(res.toString()))
             doNext = false
@@ -223,8 +233,9 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                         val tokenNextNext = i.next()
                         if (tokenNextNext.value == ")") {
                             // Situation "(N)"
+                            val moveN = if (i.hasNext()) -2 else -1
                             i.remove()
-                            i.previous()
+                            i.move(moveN)
                             i.remove()
                             doNext = true
                         } else {
@@ -247,6 +258,7 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             if (isClosingParenthesisFuncSituation()) {
                 // situation "F(N, N, N, .., N)"
                 processClosingParenthesisFuncSituation()
+                doNext = true
             } else {
                 val tokenPrev = i.previous()
                 if (tokenPrev.value == "(") { // situation "()"
@@ -261,8 +273,8 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                     doNext = false
                     return
                 }
+                i.move(2)
             }
-            i.move(2)
         }
 
         private fun isClosingParenthesisFuncSituation(): Boolean {
@@ -297,7 +309,7 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
             val v: MutableList<Double> = mutableListOf()
             i.remove()
             while (true) {
-                var t = i.getCurrentValue()
+                var t = if (i.hasNext()) i.previous() else i.getCurrentValue()
                 i.remove()
                 if (t.abbreviation == Token.Abbreviation.N) {
                     v.add(0, t.value.toDouble())
@@ -310,7 +322,7 @@ class CalculatorEngine(val functionsDirector: FunctionsDirector,
                     }
                 }
             }
-            val tokenWithFunc = i.getCurrentValue()
+            val tokenWithFunc = if (i.hasNext()) i.previous() else i.getCurrentValue()
             val funRes: Double = functionsDirector.calculate(tokenWithFunc.value, v.toTypedArray())
             i.set(Token(funRes.toString()))
             doNext = false
