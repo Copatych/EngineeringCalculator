@@ -1,4 +1,7 @@
 package calculator
+
+import calculator.DelegatingMutableListIterator.Direction
+
 class FunctionsAdder : TokenPreprocessor {
     override fun doProcessing(s: List<Token>): List<Token> {
         val sInternal = s.toMutableList()
@@ -7,30 +10,34 @@ class FunctionsAdder : TokenPreprocessor {
             while (i.hasNext()) {
                 var curValue = i.next()
                 if (curValue == Token(f.name)) {
-                    if (!i.hasNext() || (i.hasNext() && i.get(1) != Token("("))) {
-                        i.remove()
-                        val replacedSeq = f.process(listOf())
-                        for (t in replacedSeq) i.add(t)
-                    }
+                    val replacedSeq = if (!i.hasNext() || (i.hasNext() && i.get(1) != Token("("))) {
+                        f.process(listOf())
+                    } else processFuncWithArguments(i, f)
+                    if (i.getCurrentValue() !== curValue) i.previous()
+                    val addDirection = if (i.hasNext()) Direction.BACK else Direction.FORWARD
+                    i.remove()
+                    i.add(replacedSeq, addDirection)
                 }
             }
         }
         return sInternal
     }
+
     private data class Function(val name: String, val description: List<Token>) {
-        private val subTokensSeq: List<List<Token>> = run{
-            val separators = description.mapIndexedNotNull {
-                    idx, t -> if (t == Token("[") || t == Token("]")) idx else null }
+        private val subTokensSeq: List<List<Token>> = run {
+            val separators =
+                description.mapIndexedNotNull { idx, t -> if (t == Token("[") || t == Token("]")) idx else null }
             var res = arrayListOf<List<Token>>()
             var fromSep = 0
             for (toSep in separators + listOf<Int>(description.size)) {
                 res.add(description.subList(fromSep, toSep).filter { it != Token("[") && it != Token("]") })
                 fromSep = toSep
             }
+            res.removeIf { it.isEmpty() }
             res
         }
 
-        fun process(args: List<List<Token>>) : List<Token> {
+        fun process(args: List<List<Token>>): List<Token> {
             val res = mutableListOf<Token>()
             for (tokensSeq in subTokensSeq) {
                 res += if (tokensSeq[0].abbreviation == Token.Abbreviation.N) {
@@ -42,7 +49,7 @@ class FunctionsAdder : TokenPreprocessor {
             return res
         }
 
-        private fun insertArgs(s: List<Token>, args: List<List<Token>>) : List<Token> {
+        private fun insertArgs(s: List<Token>, args: List<List<Token>>): List<Token> {
             val firstIndex: Int
             if (s.isEmpty() || s.size > 3 || s[0].abbreviation != Token.Abbreviation.N) {
                 // TODO My Exception
@@ -62,11 +69,12 @@ class FunctionsAdder : TokenPreprocessor {
             for (i in firstIndex..lastIndex) {
                 res += args[i] + Token(";")
             }
-            return  res.dropLast(1)
+            return res.dropLast(1)
         }
     }
 
     private val functions: ArrayList<Function> = arrayListOf()
+    private val functionsDescriptionStr: MutableMap<String, String> = mutableMapOf()
 
     fun registerFunction(name: String, description: String) {
         /**
@@ -78,13 +86,62 @@ class FunctionsAdder : TokenPreprocessor {
          * registerFunction("F", "sum([0-4]) - [5]")
          * registerFunction("+", "-") // Bad idea
          */
+        if (functionsDescriptionStr.containsKey(name)) {
+            // TODO Replace function or throw exception? Does the ordered set exist?
+            // TODO My Exceptions
+            throw Exception("Function $name already exist.")
+        }
         val lexer = Lexer(description)
         if (lexer.isCorrect()) {
             functions.add(Function(name, lexer.tokens))
+            functionsDescriptionStr[name] = description
         }
     }
 
-    fun getFunctionsWithPosition() : List<Pair<Int, String>> {
+    fun getFunctionsWithPosition(): List<Pair<Int, String>> {
         return functions.mapIndexed { index, f -> index to f.name }
+    }
+
+    fun getFunctionsWithPositionAndDescription(): List<Triple<Int, String, String>> {
+        try {
+            return functions.mapIndexed { index, f -> Triple(index, f.name, functionsDescriptionStr[f.name]!!) }
+        } catch (e: Exception) {
+            // TODO My Exceptions
+            throw Exception("Error in FunctionsAdder.getFunctionsWithPositionAndDescription")
+        }
+    }
+
+    private fun processFuncWithArguments(i: DelegatingMutableListIterator<Token>, f: Function): List<Token> {
+        try {
+            i.next()
+            i.remove() // remove open parenthesis
+            val res = mutableListOf<List<Token>>()
+            var curArg = mutableListOf<Token>()
+            var pc = 1 // Parenthesis Counter
+            while (pc > 0) {
+                val curToken = i.getCurrentValue()
+                i.remove()
+                when (curToken) {
+                    Token("(") -> pc++
+                    Token(")") -> {
+                        pc--
+                        if (pc == 0) {
+                            res.add(curArg)
+                            break
+                        }
+                    }
+                    Token(";") -> {
+                        res.add(curArg)
+                        curArg = mutableListOf<Token>()
+                        continue
+                    }
+                }
+                curArg.add(curToken)
+            }
+            return f.process(res)
+        } catch (e: Exception) {
+            // TODO My Exceptions. Check, if threw exception is mine
+            throw Exception("Problem for arguments in ${f.name} function")
+        }
     }
 }

@@ -20,18 +20,25 @@ internal class FunctionsAdderTest {
     }
 
     @TestFactory
-    fun doProcessingFuncWithArguments() : Collection<DynamicTest> {
+    fun doProcessingFuncWithArguments(): Collection<DynamicTest> {
         val funcAdder = FunctionsAdder()
         funcAdder.registerFunction("F", "sum([0-3]) - [4]")
         data class Tested(val expected: String, val actual: String)
+
         val t = arrayOf(
             Tested("sum(1;2;3;4) - 5", "F(1;2;3;4;5)"),
             Tested("1 + sum(1;2;3;4) - 5", "1 + F(1;2;3;4;5)"),
+            Tested("sum(1;2;3;4) - 5 + 1", "F(1;2;3;4;5)+1"),
             Tested("1 + sum(1;2;3;4) - 5", "1 + F(1;2;3;4;5;6;7)"),
+            Tested("sum(sin(pi);2;3;4) - 5", "F(sin(pi);2;3;4;5)"),
             Tested("1 + sum(sin(pi);2;3;4) - 5", "1 + F(sin(pi);2;3;4;5)"),
             Tested("1 + sum(1;sin(pi);3;4) - 5", "1 + F(1;sin(pi);3;4;5)"),
-            Tested("1 + sin(sum(1;2;3;4) - 5)", "1 + sin(F(1;2;3;4;5))"),
+            Tested("1 + sin(sum(1;2;3;4) - 5)", "1 + sin(F(1;2;3;4;5))")
         )
-        return t.map { dynamicTest(it.actual) { assertEquals(Lexer(it.expected).tokens, Lexer(it.actual).tokens)} }
+        return t.map {
+            dynamicTest(it.actual) {
+                assertEquals(Lexer(it.expected).tokens, funcAdder.doProcessing(Lexer(it.actual).tokens))
+            }
+        }
     }
 }
