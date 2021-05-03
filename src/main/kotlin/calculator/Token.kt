@@ -17,6 +17,7 @@ data class Token(val value: String) {
         FUNCTION("""([a-zA-Z]\w*)""", Abbreviation.F),
         OPERATION("""([!${'$'}%^&*\-+=?<>\\|/]+)""", Abbreviation.O),
         SPEC_SYMB("""(\(|\)|;|\[|\])""", Abbreviation.S);
+
         companion object {
             val allTokens: String = run {
                 var res = ""
@@ -26,13 +27,13 @@ data class Token(val value: String) {
         }
     }
 
-    private fun recognize(s: String) : Abbreviation {
+    private fun recognize(s: String): Abbreviation {
         /**
          * This function do recognition by first symbol.
          * It also take to account negative numbers.
          */
         val c = (if ((s[0] == '-') and (s.length != 1)) s[1] else s[0]).toString()
-        for(t in RegexStr.values()) {
+        for (t in RegexStr.values()) {
             if (Regex(t.regexStr).matches(c)) {
                 return t.abbreviation
             }

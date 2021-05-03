@@ -12,47 +12,64 @@ import org.junit.jupiter.api.TestFactory
 
 internal class CalculatorEngineTest {
     private val funcDirector = FunctionsDirector()
+
     init {
         funcDirector.registerFunction("sum", null,
-            { v: Array<Double> ->
-                var res = 0.0
-                v.forEach { res += it }
-                res
-            })
+            { v -> v.reduce { acc, vi -> acc + vi } })
         funcDirector.registerFunction("sin", 1,
-            { v: Array<Double> -> sin(v[0]) })
+            { v -> sin(v[0]) })
         funcDirector.registerFunction("pi", 0,
             { PI })
     }
+
     private val opDirector = OperationsDirector()
+
     init {
-        opDirector.registerOperation("-", {v -> - v[0]},
+        opDirector.registerOperation(
+            "-", { v -> -v[0] },
             Arity.UNARY, 15,
-            Associativity.RIGHT)
-        opDirector.registerOperation("+", {v -> v[0] + v[1]},
+            Associativity.RIGHT
+        )
+        opDirector.registerOperation(
+            "+", { v -> v[0] + v[1] },
             Arity.BINARY, 1,
-            Associativity.LEFT)
-        opDirector.registerOperation("-", {v -> v[0] - v[1]},
+            Associativity.LEFT
+        )
+        opDirector.registerOperation(
+            "-", { v -> v[0] - v[1] },
             Arity.BINARY, 1,
-            Associativity.LEFT)
-        opDirector.registerOperation("*", {v -> v[0] * v[1]},
+            Associativity.LEFT
+        )
+        opDirector.registerOperation(
+            "*", { v -> v[0] * v[1] },
             Arity.BINARY, 5,
-            Associativity.LEFT)
-        opDirector.registerOperation("/", {v -> v[0] / v[1]},
+            Associativity.LEFT
+        )
+        opDirector.registerOperation(
+            "/", { v -> v[0] / v[1] },
             Arity.BINARY, 5,
-            Associativity.LEFT)
-        opDirector.registerOperation("**", {v -> v[0].pow(v[1])},
+            Associativity.LEFT
+        )
+        opDirector.registerOperation(
+            "**", { v -> v[0].pow(v[1]) },
             Arity.BINARY, 9,
-            Associativity.RIGHT)
-        opDirector.registerOperation("++", {v -> v[0] + 1},
+            Associativity.RIGHT
+        )
+        opDirector.registerOperation(
+            "++", { v -> v[0] + 1 },
             Arity.UNARY, 10,
-            Associativity.LEFT)
-        opDirector.registerOperation("!", {v -> gamma(v[0] + 1)},
+            Associativity.LEFT
+        )
+        opDirector.registerOperation(
+            "!", { v -> gamma(v[0] + 1) },
             Arity.UNARY, 10,
-            Associativity.LEFT)
-        opDirector.registerOperation("!->", {v -> gamma(v[0] + 1)},
+            Associativity.LEFT
+        )
+        opDirector.registerOperation(
+            "!->", { v -> gamma(v[0] + 1) },
             Arity.UNARY, 10,
-            Associativity.RIGHT)
+            Associativity.RIGHT
+        )
     }
 
     data class TestedData(val expression: String, val result: Double?)
@@ -85,7 +102,7 @@ internal class CalculatorEngineTest {
         TestedData("2**3**3", 2.0.pow(27)),
         TestedData("2**3", 2.0.pow(3)),
         TestedData("2**3++", 2.0.pow(4)),
-        TestedData("1*34++ +2-7**2-8*2**3++", (35+2-49-8*16).toDouble()),
+        TestedData("1*34++ +2-7**2-8*2**3++", (35 + 2 - 49 - 8 * 16).toDouble()),
         //--------------------------------------------------
         TestedData("1!", 1.0),
         TestedData("5!", 120.0),
@@ -103,7 +120,7 @@ internal class CalculatorEngineTest {
     )
 
     @TestFactory
-    fun calculate() : Collection<DynamicTest> {
+    fun calculate(): Collection<DynamicTest> {
         val calcEngine = CalculatorEngine(funcDirector, opDirector)
         return tdArray.map {
             dynamicTest(it.expression) {
