@@ -116,7 +116,9 @@ internal class CalculatorEngineTest {
         TestedData("-3", -3.0),
         TestedData("(-3)", -3.0),
         TestedData("-3 + -2", -5.0),
-        TestedData("(-3 + (-2))", -5.0)
+        TestedData("(-3 + (-2))", -5.0),
+        //--------------------------------------------------
+        //TestedData("3-2*2-5!+15", -106.0) // TODO It is bad Exception. Exception with "!+" should be shown
     )
 
     @TestFactory

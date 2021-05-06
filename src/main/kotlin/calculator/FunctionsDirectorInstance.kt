@@ -10,6 +10,10 @@ class FunctionsDirectorInstance {
             { v -> v.reduce { acc, vi -> acc + vi } })
         funcDirector.registerFunction("pi", 0,
             { PI })
+        funcDirector.registerFunction("PI", 0,
+            { PI })
+        funcDirector.registerFunction("e", 0,
+            { E })
         funcDirector.registerFunction("E", 0,
             { E })
         funcDirector.registerFunction("sin", 1,
