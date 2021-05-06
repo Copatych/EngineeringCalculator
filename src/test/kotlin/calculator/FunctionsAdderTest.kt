@@ -41,4 +41,69 @@ internal class FunctionsAdderTest {
             }
         }
     }
+
+    @Test
+    fun getFunctionsFullDescription() {
+        val funcAdder = FunctionsAdder()
+        assertEquals(arrayListOf<FunctionsAdder.FunctionFullDescription>(), funcAdder.getFunctionsFullDescription())
+        funcAdder.registerFunction("F", "abc")
+        assertEquals(
+            arrayListOf(FunctionsAdder.FunctionFullDescription("F", "abc")),
+            funcAdder.getFunctionsFullDescription()
+        )
+        funcAdder.registerFunction("F1", "abc12", "comment")
+        assertEquals(
+            arrayListOf(
+                FunctionsAdder.FunctionFullDescription("F", "abc"),
+                FunctionsAdder.FunctionFullDescription("F1", "abc12", "comment")
+            ),
+            funcAdder.getFunctionsFullDescription()
+        )
+    }
+
+    @Test
+    fun serialize() {
+        val funcAdder = FunctionsAdder()
+        assertEquals("[]", funcAdder.serialize())
+        funcAdder.registerFunction("F", "abc")
+        assertEquals("[{\"name\":\"F\",\"description\":\"abc\"}]", funcAdder.serialize())
+        funcAdder.registerFunction("F1", "abc12", "comment")
+        assertEquals(
+            "[{\"name\":\"F\",\"description\":\"abc\"}," +
+                    "{\"name\":\"F1\",\"description\":\"abc12\",\"comment\":\"comment\"}]",
+            funcAdder.serialize()
+        )
+    }
+
+    @Test
+    fun deserialize() {
+        val funcAdder = FunctionsAdder()
+        assertEquals(
+            funcAdder.getFunctionsFullDescription(),
+            FunctionsAdder.deserialize("[]").getFunctionsFullDescription()
+        )
+        funcAdder.registerFunction("F", "abc")
+        assertEquals(
+            funcAdder.getFunctionsFullDescription(),
+            FunctionsAdder.deserialize("[{\"name\":\"F\",\"description\":\"abc\"}]").getFunctionsFullDescription()
+        )
+        funcAdder.registerFunction("F1", "abc12", "comment")
+        assertEquals(
+            funcAdder.getFunctionsFullDescription(),
+            FunctionsAdder.deserialize(
+                "[{\"name\":\"F\",\"description\":\"abc\"}," +
+                        "{\"name\":\"F1\",\"description\":\"abc12\",\"comment\":\"comment\"}]"
+            ).getFunctionsFullDescription()
+        )
+    }
+
+    @Test
+    fun serializeAndDeserialize() {
+        val funcAdder = FunctionsAdder()
+        funcAdder.registerFunction("F", "abc")
+        funcAdder.registerFunction("F1", "abc12", "comment")
+        val s = funcAdder.serialize()
+        val funcAdderDeserialized = FunctionsAdder.deserialize(s)
+        assertEquals(funcAdder.getFunctionsFullDescription(), funcAdderDeserialized.getFunctionsFullDescription())
+    }
 }

@@ -1,8 +1,13 @@
 package calculator
 
 import calculator.DelegatingMutableListIterator.Direction
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
 
 class FunctionsAdder : TokenPreprocessor {
+    @Serializable
+    data class FunctionFullDescription(val name: String, val description: String, val comment: String = "")
+
     override fun doProcessing(s: List<Token>): List<Token> {
         val sInternal = s.toMutableList()
         for (f in functions) {
@@ -74,19 +79,20 @@ class FunctionsAdder : TokenPreprocessor {
     }
 
     private val functions: ArrayList<Function> = arrayListOf()
-    private val functionsDescriptionStr: MutableMap<String, String> = mutableMapOf()
 
-    fun registerFunction(name: String, description: String) {
+    private val functionsFullDescription: ArrayList<FunctionFullDescription> = arrayListOf()
+
+    fun registerFunction(name: String, description: String, comment: String = "") {
         /**
          * Examples:
-         * registerFunction("renamed_sin", "sin") // just renaming
+         * registerFunction("renamed_sin", "sin", "just renaming of sin")
          * registerFunction("modified_sin", "sin([0] + pi)")
          * registerFunction("easy_sum", "[0] + [1]")
          * registerFunction("add", "sum([0-])")
          * registerFunction("F", "sum([0-4]) - [5]")
          * registerFunction("+", "-") // Bad idea
          */
-        if (functionsDescriptionStr.containsKey(name)) {
+        if (functionsFullDescription.find { it.name == name } != null) {
             // TODO Replace function or throw exception? Does the ordered set exist?
             // TODO My Exceptions
             throw Exception("Function $name already exist.")
@@ -94,17 +100,17 @@ class FunctionsAdder : TokenPreprocessor {
         val lexer = Lexer(description)
         if (lexer.isCorrect()) {
             functions.add(Function(name, lexer.tokens))
-            functionsDescriptionStr[name] = description
+            functionsFullDescription.add(FunctionFullDescription(name, description, comment))
         }
     }
 
-    fun getFunctionsWithPosition(): List<Pair<Int, String>> {
-        return functions.mapIndexed { index, f -> index to f.name }
+    fun getFunctionsNames(): List<String> {
+        return functions.map { f -> f.name }
     }
 
-    fun getFunctionsWithPositionAndDescription(): List<Triple<Int, String, String>> {
+    fun getFunctionsFullDescription(): List<FunctionFullDescription> {
         try {
-            return functions.mapIndexed { index, f -> Triple(index, f.name, functionsDescriptionStr[f.name]!!) }
+            return functions.map { f -> functionsFullDescription.find { it.name == f.name }!! }
         } catch (e: Exception) {
             // TODO My Exceptions
             throw Exception("Error in FunctionsAdder.getFunctionsWithPositionAndDescription")
@@ -142,6 +148,20 @@ class FunctionsAdder : TokenPreprocessor {
         } catch (e: Exception) {
             // TODO My Exceptions. Check, if threw exception is mine
             throw Exception("Problem for arguments in ${f.name} function")
+        }
+    }
+
+    fun serialize() : String = Json.encodeToString(getFunctionsFullDescription())
+
+    companion object {
+        fun deserialize(s: String): FunctionsAdder {
+            if (s.isBlank()) return FunctionsAdder()
+            val functionsFullDescription: List<FunctionFullDescription> = Json.decodeFromString(s)
+            val funcAdder = FunctionsAdder()
+            for (ffd in functionsFullDescription) {
+                funcAdder.registerFunction(ffd.name, ffd.description, ffd.comment)
+            }
+            return funcAdder
         }
     }
 }
