@@ -16,7 +16,9 @@ internal class TokenTest {
             Executable { assertEquals(Token.Abbreviation.N, Token("3.").abbreviation) },
             Executable { assertEquals(Token.Abbreviation.N, Token("-3.").abbreviation) },
             Executable { assertEquals(Token.Abbreviation.N, Token("-3.12321E15").abbreviation) },
-            Executable { assertEquals(Token.Abbreviation.N, Token("-3.12321E-15").abbreviation) }
+            Executable { assertEquals(Token.Abbreviation.N, Token("-3.12321E-15").abbreviation) },
+            Executable { assertEquals(Token.Abbreviation.N, Token("3e2").abbreviation) },
+            Executable { assertEquals(Token.Abbreviation.N, Token("3E-2").abbreviation) }
         )
     }
 }

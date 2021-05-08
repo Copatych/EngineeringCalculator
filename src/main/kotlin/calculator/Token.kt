@@ -13,7 +13,7 @@ data class Token(val value: String) {
     val abbreviation: Abbreviation = recognize(value)
 
     enum class RegexStr(val regexStr: String, val abbreviation: Abbreviation) {
-        NUMBER("""(\d+([,\.]\d*(E-?\d\d?)?)?)""", Abbreviation.N),
+        NUMBER("""(\d+([,\.]\d*)?([eE]-?\d\d?)?)""", Abbreviation.N),
         FUNCTION("""([a-zA-Z]\w*)""", Abbreviation.F),
         OPERATION("""([!${'$'}%^&*\-+=?<>\\|/]+)""", Abbreviation.O),
         SPEC_SYMB("""(\(|\)|;|\[|\])""", Abbreviation.S);

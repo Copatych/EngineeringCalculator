@@ -34,6 +34,20 @@ internal class LexerTest {
             "Simple correct example"
         ),
         TestedData(
+            "3E-2",
+            listOf("3E-2"),
+            stringToListOfAbbrev("n"),
+            true, null,
+            "Number in scientific notation"
+        ),
+        TestedData(
+            "3.0E-2",
+            listOf("3.0E-2"),
+            stringToListOfAbbrev("n"),
+            true, null,
+            "Number in scientific notation with point separator"
+        ),
+        TestedData(
             "3**2 / (sin(3.14) + 1,2)",
             listOf("3", "**", "2", "/", "(", "sin", "(", "3.14", ")", "+", "1,2", ")"),
             stringToListOfAbbrev("nonosfsnsons"),
