@@ -92,15 +92,20 @@ class FunctionsAdder : TokenPreprocessor {
          * registerFunction("F", "sum([0-4]) - [5]")
          * registerFunction("+", "-") // Bad idea
          */
-        if (functionsFullDescription.find { it.name == name } != null) {
+        val nameSeparated = name.split(Regex("""\s+""")).filterNot { it.isNullOrBlank() }
+        if (nameSeparated.size > 1 || nameSeparated.isEmpty()) {
+            throw Exception("The name of registered function must be without spaces")
+        }
+        val nameBase = nameSeparated[0]
+        if (functionsFullDescription.find { it.name == nameBase } != null) {
             // TODO Replace function or throw exception? Does the ordered set exist?
             // TODO My Exceptions
-            throw Exception("Function $name already exist.")
+            throw Exception("Function $nameBase already exist.")
         }
         val lexer = Lexer(description)
         if (lexer.isCorrect()) {
-            functions.add(Function(name, lexer.tokens))
-            functionsFullDescription.add(FunctionFullDescription(name, description, comment))
+            functions.add(Function(nameBase, lexer.tokens))
+            functionsFullDescription.add(FunctionFullDescription(nameBase, description, comment))
         }
     }
 
