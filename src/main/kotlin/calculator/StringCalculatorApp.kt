@@ -30,7 +30,10 @@ class StringCalculatorApp(
         }
         val lexer = Lexer(expr)
         // TODO My Exceptions or rewrite lexer for checking on correctness immediately
-        if (!lexer.isCorrect()) throw Exception("Invalid sequence")
+        if (!lexer.isCorrect()) {
+            // TODO My Exceptions
+            throw Exception("Error for symbol '${expr[lexer.erroredIndex!!]}' in position ${lexer.erroredIndex}")
+        }
         var tokens: List<Token> = lexer.tokens
         for (tp in tokensPreprocessors) {
             tokens = tp.doProcessing(tokens)

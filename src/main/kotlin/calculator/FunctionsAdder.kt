@@ -106,6 +106,9 @@ class FunctionsAdder : TokenPreprocessor {
         if (lexer.isCorrect()) {
             functions.add(Function(nameBase, lexer.tokens))
             functionsFullDescription.add(FunctionFullDescription(nameBase, description, comment))
+        } else {
+            // TODO My Exceptions
+            throw Exception("Error in description for symbol '${description[lexer.erroredIndex!!]}' in position ${lexer.erroredIndex}")
         }
     }
 

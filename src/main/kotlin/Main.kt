@@ -8,7 +8,7 @@ fun main(args: Array<String>) {
             val expr = readLine() ?: continue
             println(calculatorApp.process(expr))
         } catch (e: Exception) {
-            println(e.toString())
+            println(e.message)
         }
     }
 }
