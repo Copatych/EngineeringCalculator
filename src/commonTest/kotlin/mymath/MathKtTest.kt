@@ -1,11 +1,8 @@
 package mymath
 
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
-
 import kotlin.math.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class MathKtTest {
 

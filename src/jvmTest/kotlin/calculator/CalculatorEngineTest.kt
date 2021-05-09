@@ -1,6 +1,5 @@
 package calculator
 
-import org.junit.jupiter.api.Assertions
 import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sin

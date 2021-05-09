@@ -42,6 +42,18 @@ class StringCalculatorApp(
         return (calculatorEngine.calculate(tokens) ?: throw Exception("Returned null")).toString()
     }
 
+    fun main(print: (String)-> Unit, read: () -> String?) {
+        print(helloInfo)
+        while (true) {
+            try {
+                val expr = read() ?: continue
+                print(process(expr))
+            } catch (e: Exception) {
+                print(e.message.toString())
+            }
+        }
+    }
+
     private enum class ControlSeq(val v: String) {
         SystemFunctions("system functions"),
         SystemOperations("system operations"),

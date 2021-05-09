@@ -281,7 +281,6 @@ class CalculatorEngine(
             // check if situation "F(N, N, N, .., N)"
             var iters = 0
             var tokenCurrent: Token
-            var res = false
             while (true) {
                 if (i.hasPrevious()) {
                     iters++
@@ -296,11 +295,11 @@ class CalculatorEngine(
                     throw Exception("Closing parenthesis without opening")
                 }
             }
-            if (i.hasPrevious()) {
+            val res = if (i.hasPrevious()) {
                 iters++
                 tokenCurrent = i.previous()
-                res = (tokenCurrent.abbreviation == Token.Abbreviation.F)
-            } else res = false
+                (tokenCurrent.abbreviation == Token.Abbreviation.F)
+            } else false
             i.move(iters)
             return res
         }

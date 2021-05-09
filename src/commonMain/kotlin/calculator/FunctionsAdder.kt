@@ -38,8 +38,7 @@ class FunctionsAdder : TokenPreprocessor {
                 res.add(description.subList(fromSep, toSep).filter { it != Token("[") && it != Token("]") })
                 fromSep = toSep
             }
-            res.removeIf { it.isEmpty() }
-            res
+            res.filterNot{it.isEmpty()}
         }
 
         fun process(args: List<List<Token>>): List<Token> {

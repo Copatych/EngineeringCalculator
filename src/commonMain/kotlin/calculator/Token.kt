@@ -1,6 +1,6 @@
 package calculator
 
-import java.lang.Exception
+import kotlin.Exception
 
 data class Token(val value: String) {
     enum class Abbreviation {

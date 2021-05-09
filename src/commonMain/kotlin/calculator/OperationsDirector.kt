@@ -73,7 +73,7 @@ class OperationsDirector {
     }
 
     fun getPriorities(): Map<OperationKey, Int> {
-        return operationsMap.map { it.key to it.value?.priority }.toMap()
+        return operationsMap.map { it.key to it.value.priority }.toMap()
     }
 
     fun getAssociativity(opKey: OperationKey): Associativity? {

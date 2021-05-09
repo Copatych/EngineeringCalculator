@@ -70,8 +70,6 @@ class FunctionsDirectorInstance {
             { v -> min(v[0], v[1]) })
         funcDirector.registerFunction("pow", 2,
             { v -> v[0].pow(v[1]) })
-        funcDirector.registerFunction("IEEErem", 2,
-            { v -> v[0].IEEErem(v[1]) })
         funcDirector.registerFunction("withSign", 1,
             { v -> v[0].withSign(v[1]) })
         funcDirector.registerFunction("ulp", 1,

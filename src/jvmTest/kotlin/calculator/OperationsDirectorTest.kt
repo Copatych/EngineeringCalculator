@@ -109,6 +109,6 @@ internal class OperationsDirectorTest {
         assertEquals(exceptionMessage1, Exception("Operation \"++\" must be unary."))
         val exceptionMessage2 = assertThrows(Exception::class.java,
             { opDirector.calculate(OperationKey("+", Arity.BINARY), arrayOf(3.0, 4.0, 15.9)) })
-        assertEquals(exceptionMessage1, Exception("Operation \"+\" must be binary."))
+        assertEquals(exceptionMessage2, Exception("Operation \"+\" must be binary."))
     }
 }

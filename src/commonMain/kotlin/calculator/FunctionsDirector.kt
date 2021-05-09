@@ -1,6 +1,6 @@
 package calculator
 
-import java.lang.Exception
+import kotlin.Exception
 
 class FunctionsDirector {
     // If nargs is null, then nargs can be anythyng
