@@ -7,7 +7,10 @@ group = "copatych"
 version = "1.0-SNAPSHOT"
 
 repositories {
+    maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
+    maven("https://kotlin.bintray.com/kotlin-js-wrappers/")
     mavenCentral()
+    jcenter()
 }
 
 kotlin {
@@ -63,7 +66,17 @@ kotlin {
         val nativeTest by getting
         val jvmMain by getting
         val jvmTest by getting
-        val jsMain by getting
+        val jsMain by getting {
+            dependencies {
+                implementation("org.jetbrains:kotlin-react:17.0.1-pre.148-kotlin-1.4.21")
+                implementation("org.jetbrains:kotlin-react-dom:17.0.1-pre.148-kotlin-1.4.21")
+                implementation(npm("react", "17.0.1"))
+                implementation(npm("react-dom", "17.0.1"))
+
+                implementation("org.jetbrains:kotlin-styled:5.2.1-pre.148-kotlin-1.4.21")
+                implementation(npm("styled-components", "~5.2.1"))
+            }
+        }
         val jsTest by getting
     }
 }
