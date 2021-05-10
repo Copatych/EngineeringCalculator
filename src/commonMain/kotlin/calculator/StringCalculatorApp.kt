@@ -11,10 +11,10 @@ class StringCalculatorApp(
     companion object {
         const val startOfControlSequence = "!!!>>"
         val helloInfo =
-            "Hi. This is a powerful calculator, that can process expressions like \"round(13 / sin(pi / 2) + 1)\"\n" +
-                    "If you want to see all the functions and operations or register your own function, \nuse \"$startOfControlSequence " +
+            "Hi. This is a powerful calculator, that can process expressions like \"round(13 / sin(pi / 2) + 1)\".\n" +
+                    "If you want to see all the functions and operations or register your own function, use \"$startOfControlSequence " +
                     "control_sequence\", where \"control_sequence\" is one of these:\n" + ControlSeq.printControlSequences() +
-                    "\nFor more information, see the documentation"
+                    "\nFor more information, see the documentation."
     }
 
     init {
@@ -54,15 +54,15 @@ class StringCalculatorApp(
         }
     }
 
-    private enum class ControlSeq(val v: String) {
+    enum class ControlSeq(val v: String) {
         SystemFunctions("system functions"),
         SystemOperations("system operations"),
         FunctionsNames("functions names"),
         FunctionsDescription("functions description"),
         RegisterFunction("register function") {
-            override val printedInfo = v + " " + ControlSeq.registerFunctionSep + " name " +
-                    ControlSeq.registerFunctionSep + " description " + "[" + ControlSeq.registerFunctionSep +
-                    " comment]"
+            override val printedInfo = v + " 'name' " +
+                    ControlSeq.registerFunctionSep + " 'description' " + "[" + ControlSeq.registerFunctionSep +
+                    " 'comment']"
         },
         UndefinedSeq("");
 

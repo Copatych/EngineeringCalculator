@@ -15,6 +15,8 @@ internal class StringCalculatorAppTest {
     fun easyCalculations() {
         assertEquals(3.0, app.process("1+2").toDouble())
         assertEquals(0.0, app.process("sin(0)").toDouble())
+        assertEquals(0.0, app.process("round(sin(pi))").toDouble())
+        assertEquals(14.0, app.process("round(13 / sin(pi/2) + 1)").toDouble())
     }
 
     @Test

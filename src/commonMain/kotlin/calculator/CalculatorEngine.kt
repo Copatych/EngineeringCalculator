@@ -256,7 +256,7 @@ class CalculatorEngine(
 
         private fun processClosingParenthesis() {
             if (isClosingParenthesisFuncSituation()) {
-                // situation "F(N, N, N, .., N)"
+                // situation "F(N; N; N; ..; N)"
                 processClosingParenthesisFuncSituation()
                 doNext = true
             } else {
@@ -278,7 +278,7 @@ class CalculatorEngine(
         }
 
         private fun isClosingParenthesisFuncSituation(): Boolean {
-            // check if situation "F(N, N, N, .., N)"
+            // check if situation "F(N; N; N; ..; N)"
             var iters = 0
             var tokenCurrent: Token
             while (true) {
@@ -286,7 +286,7 @@ class CalculatorEngine(
                     iters++
                     tokenCurrent = i.previous()
                     if (tokenCurrent.value == "(") break
-                    else if (tokenCurrent.value == ")") {
+                    else if (tokenCurrent.abbreviation != Token.Abbreviation.N && tokenCurrent.value != ";") {
                         i.move(iters)
                         return false
                     }
@@ -306,9 +306,11 @@ class CalculatorEngine(
 
         private fun processClosingParenthesisFuncSituation() {
             val v: MutableList<Double> = mutableListOf()
+            var isNextNotEnd = i.hasNext()
             i.remove()
             while (true) {
-                var t = if (i.hasNext()) i.previous() else i.getCurrentValue()
+                var t = if (isNextNotEnd) i.previous() else i.getCurrentValue()
+                isNextNotEnd = i.hasNext()
                 i.remove()
                 if (t.abbreviation == Token.Abbreviation.N) {
                     v.add(0, t.value.toDouble())
@@ -321,7 +323,7 @@ class CalculatorEngine(
                     }
                 }
             }
-            val tokenWithFunc = if (i.hasNext()) i.previous() else i.getCurrentValue()
+            val tokenWithFunc = if (isNextNotEnd) i.previous() else i.getCurrentValue()
             val funRes: Double = functionsDirector.calculate(tokenWithFunc.value, v.toTypedArray())
             i.set(Token(funRes.toString()))
             doNext = false
