@@ -1,6 +1,7 @@
 import calculator.StringCalculatorApp
 import react.*
 import kotlinx.css.*
+import kotlinx.html.*
 import org.w3c.dom.HTMLInputElement
 import styled.*
 
@@ -36,8 +37,9 @@ class App : RComponent<AppProps, AppState>() {
                 top = 25.px
                 right = 25.px
                 width = widthCalculatorInfo
-                borderLeftStyle = BorderStyle.solid
-                paddingLeft = 25.px
+            }
+            attrs {
+                id = "calculatorInfo"
             }
             calculatorInfo { calcApp = props.calcApp }
         }
@@ -47,6 +49,9 @@ class App : RComponent<AppProps, AppState>() {
                 top = 25.px
                 left = 25.px
                 width = widthBaseDiv
+            }
+            attrs {
+                id = "calculatorBaseDiv"
             }
             input {
                 onSubmitFunction = {

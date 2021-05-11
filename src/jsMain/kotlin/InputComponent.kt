@@ -25,6 +25,7 @@ class InputComponent : RComponent<InputProps, RState>() {
                     height = 35.px
                 }
                 attrs {
+                    id = "inputExpr"
                     placeholder = "Print expression"
                     onChangeFunction = props.onChangeFunction
                 }

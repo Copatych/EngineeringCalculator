@@ -1,5 +1,7 @@
 import kotlinx.css.*
+import kotlinx.html.*
 import react.*
+import react.dom.*
 import styled.*
 
 class ResultsOutputComponent : RComponent<ResultsProps, RState>() {
@@ -12,16 +14,13 @@ class ResultsOutputComponent : RComponent<ResultsProps, RState>() {
                     width = 100.pct
                     marginTop = 3.px
                 }
-                styledDiv {
-                    css {
-                        backgroundColor = Color.turquoise
-                    }
+                attrs {
+                    classes = setOf("resultsOutput")
+                }
+                div("exprOutput") {
                     +r.expr
                 }
-                styledDiv {
-                    css {
-                        backgroundColor = Color.lemonChiffon
-                    }
+                div("resOutput") {
                     +r.res
                 }
             }
