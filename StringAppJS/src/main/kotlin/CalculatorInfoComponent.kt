@@ -2,7 +2,6 @@ import calculator.StringCalculatorApp
 import kotlinx.css.*
 import react.*
 import styled.*
-import kotlinx.html.*
 import react.dom.*
 
 

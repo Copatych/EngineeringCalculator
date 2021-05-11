@@ -4,7 +4,6 @@ import kotlinx.css.*
 import kotlinx.html.*
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onSubmitFunction
-import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
 import styled.*
 

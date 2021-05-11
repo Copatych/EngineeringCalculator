@@ -9,3 +9,8 @@ pluginManagement {
 }
 rootProject.name = "EngineeringCalculator"
 
+
+include(":EngineeringCalculatorLib")
+include(":StringAppJS")
+include(":StringAppJVM")
+include(":StringAppNative")
