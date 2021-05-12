@@ -1,10 +1,14 @@
 # Engineering Calculator
 
-This library is written from scratch in Kotlin and allows multi-platform use. The library itself is directly located in
+A calculator (Expression Interpreter) that allows you to process complex mathematical expressions. 
+The basic functions and operations are defined by the programmer using the api. 
+The user can create new functions based on existing ones.
+
+First of all it is a library, that is written from scratch in Kotlin and allows multi-platform use. The library itself is directly located in
 EngineeringCalculatorLib. Simple applications based on this library are located in StringAppJS, StringAppJVM,
 StringAppNative. Compiled files are located in release section on github.
 
-StringAppJS [try](https://www.education-blog.ru/EngineeringCalculator/StringAppJS.html) without downloading.
+StringAppJS [try it here](https://www.education-blog.ru/EngineeringCalculator/StringAppJS.html) without downloading.
 
 ## Examples of processed expressions
 
