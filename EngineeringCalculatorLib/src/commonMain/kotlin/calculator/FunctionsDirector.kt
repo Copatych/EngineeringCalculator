@@ -50,7 +50,7 @@ class FunctionsDirector {
         }.toString()
     }
 
-    fun getFunctionsNames(): List<String> {
+    fun functionsNames(): List<String> {
         return functionsMap.keys.toList()
     }
 }

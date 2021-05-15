@@ -59,7 +59,7 @@ class OperationsDirector {
         return op1.priority - op2.priority
     }
 
-    fun getRegisteredOperations(): String {
+    fun getOperationsDetailed(): String {
         return StringBuilder(operationsMap.size * 50).apply {
             operationsMap.forEach {
                 this.append(
@@ -70,6 +70,10 @@ class OperationsDirector {
                 )
             }
         }.toString()
+    }
+
+    fun operationsNames(): List<String> {
+        return operationsMap.keys.map { it.name }
     }
 
     fun getPriorities(): Map<OperationKey, Int> {
