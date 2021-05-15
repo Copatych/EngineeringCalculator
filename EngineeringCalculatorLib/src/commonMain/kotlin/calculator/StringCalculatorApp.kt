@@ -89,7 +89,7 @@ class StringCalculatorApp(
         // Change all space sequences to one space
         val sCorrected = s.trim().split(Regex("""\s+""")).joinToString(" ")
         return when (ControlSeq.recognize(sCorrected)) {
-            ControlSeq.SystemFunctions -> functionsDirector.getRegisteredFunctions()
+            ControlSeq.SystemFunctions -> functionsDirector.getFunctionsDetailed()
             ControlSeq.SystemOperations -> operationsDirector.getRegisteredOperations()
             ControlSeq.FunctionsNames -> functionsAdder.getFunctionsNames().joinToString("\n")
             ControlSeq.FunctionsDescription -> functionsAdder.getFunctionsFullDescription().joinToString("\n")

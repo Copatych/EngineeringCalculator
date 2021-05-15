@@ -36,7 +36,7 @@ class FunctionsDirector {
         }
     }
 
-    fun getRegisteredFunctions(): String {
+    fun getFunctionsDetailed(): String {
         return StringBuilder(functionsMap.size * 50).apply {
             functionsMap.forEach {
                 this.append(
@@ -48,5 +48,9 @@ class FunctionsDirector {
                 )
             }
         }.toString()
+    }
+
+    fun getFunctionsNames(): List<String> {
+        return functionsMap.keys.toList()
     }
 }

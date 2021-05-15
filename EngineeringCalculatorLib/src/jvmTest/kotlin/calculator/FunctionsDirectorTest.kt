@@ -32,10 +32,10 @@ internal class FunctionsDirectorTest {
     @Test
     fun getRegisteredFunctions() {
         val funcD = FunctionsDirector()
-        assertEquals("", funcD.getRegisteredFunctions())
+        assertEquals("", funcD.getFunctionsDetailed())
         funcD.registerFunction("sin", 1,
             {v: Array<Double> -> sin(v[0]) })
-        assertEquals("sin - 1 arguments\n", funcD.getRegisteredFunctions())
+        assertEquals("sin - 1 arguments\n", funcD.getFunctionsDetailed())
         funcD.registerFunction("add", null,
             {v: Array<Double> ->
                 var res = 0.0
@@ -46,6 +46,6 @@ internal class FunctionsDirectorTest {
         assertEquals("sin - 1 arguments\n" +
                 "add - variable number of arguments" +
                 " - Adding a variable number of arguments\n",
-            funcD.getRegisteredFunctions())
+            funcD.getFunctionsDetailed())
     }
 }
