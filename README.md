@@ -178,3 +178,7 @@ N | O | N
 - Special symbols: single characters ();[]
 
 See the specific implementation in the [Token.kt](./EngineeringCalculatorLib/src/commonMain/kotlin/calculator/Token.kt)
+
+# See also
+[EngineeringCalculatorMobile](https://github.com/Copatych/EngineeringCalculatorMobile)
+implements a graphical interface for mobile platforms
